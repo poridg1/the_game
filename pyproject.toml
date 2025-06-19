@@ -1,0 +1,7 @@
+[project]
+name = "the-game"
+version = "0.1.0"
+description = "This is my pp don't touch it"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
