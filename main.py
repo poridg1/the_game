@@ -18,14 +18,21 @@ GREEN = (0, 255, 0)
 # Initializing 
 pygame.init()
 
-# Screen information
+# Screen informationa
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 600
 
 # game variables
 SPEED = 5
 INC_TIME = 3 # In seconds
+SCORE = 0
 
+#Setting up white screen
+font = pygame.font.SysFont("Verdana", 60)
+font_small = pygame.font.SysFont("Verdana", 20)
+game_over = font.render("Game Over", True, BLACK)
+
+background = pygame.image.load("assets/AnimatedStreet.png")
 
 DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 DISPLAYSURF.fill(WHITE)
@@ -39,10 +46,12 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.center=(random.randint(40,SCREEN_WIDTH-40),0)
 
     def move(self):
+        global SCORE
         self.rect.move_ip(0,SPEED)
         if (self.rect.bottom > SCREEN_HEIGHT):
             self.rect.top = 0
-            self.rect.center = (random.randint(30, 370), 0)
+            self.rect.center = (random.randint(30, 370), 0)    
+            SCORE += 1
 
     def draw(self):
         DISPLAYSURF.blit(self.image, self.rect)
@@ -67,6 +76,8 @@ class Player(pygame.sprite.Sprite):
         if self.rect.right < SCREEN_WIDTH:
             if pressed_keys[K_RIGHT]:
                 self.rect.move_ip(5, 0)
+        if self.rect.bottom > SCREEN_HEIGHT:
+            self.rect.bottom = SCREEN_HEIGHT
 
     def draw(self):
         DISPLAYSURF.blit(self.image, self.rect)        
@@ -94,8 +105,9 @@ while True:
             pygame.quit()
             sys.exit()
 
-
-    DISPLAYSURF.fill(WHITE)
+    DISPLAYSURF.blit(background, (0,0))
+    scores = font_small.render(str(SCORE), True, BLACK)
+    DISPLAYSURF.blit(scores, (10,10))
 
     for entity in all_sprites:
         DISPLAYSURF.blit(entity.image, entity.rect)
@@ -103,7 +115,12 @@ while True:
         entity.draw()
 
     if pygame.sprite.spritecollideany(P1, enemies):
+        pygame.mixer.Sound('assets/crash.wav').play()
+        time.sleep(0.5)
+
         DISPLAYSURF.fill(RED)
+        DISPLAYSURF.blit(game_over, (30,250))
+
         pygame.display.update()
         for entity in all_sprites:
             entity.kill()
